@@ -1,0 +1,19 @@
+# dataset: GeoCSV 2.0
+# field_unit: ISO_8601, degC, #, %, #, #, inch H2O, in/hr, #, #, #, #, #, #, #, #, #, #, %, #
+# field_type: datetime, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float
+# attribution: cisl-chords.cloud.ucar.edu
+# doi: https://doi.org/10.5065/d6v1236q
+# doi_citation: https://citation.crosscite.org/?doi=10.5065/d6v1236q
+# chords_version: 1.0.2
+# chords_version_sha: a6def0f
+# delimiter: ,
+# instrument_name: NEON Test Site/RMNP
+# sensor_id: neon000
+# creation_date: 2024-06-13 15:32:16 +0000
+# data collection site: NEON/RMNP
+# data collection longitude: -105.542287491
+# data collection latitude: 40.277041294
+# data collection elevation: 2815.438 meters
+# Measurements in File: 0
+# Units of Measure: milliseconds, degC, #, %, #, #, inch H2O, in/hr, #, #, #, #, #, #, #, #, #, #, %, #
+Time,Temperature,UVAB,Humidity,Pressure,VOC (aggregate),Precipitation,Precipitation Rate,PM2.5,PM10,PM1.0, Particle Count (3um) , Particle Count (5um) ,Particle Count (10um) , Particle Count (25um) , Particle Count (50um) , Particle Count (100um) ,PM1.0 (environmental),PM2.5 (environmental),PM10 (environmental)
