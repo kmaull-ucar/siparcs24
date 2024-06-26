@@ -58,14 +58,14 @@ The source code for the different implementations can be found as follows:
 | Sparkfun | ExpLoRAble | 915mhz | implementation **does not work with PiLoRA** (Adafruit) board | [./code/Sparkfun_ExpLoRAble](./code/Sparkfun_ExpLoRAble) |
 | AdaFruit | ARM Adafruit Feather RP2040 with RFM95 LoRa Radio | 915mhz | in progress | -- |
 
-# Data 
+<!-- # Data 
 
 Data to be compared with the NEON station
 
 
 |  Data |   Summary | Location |
 | :---: | ----------|----------|
-| EPA source | This folder contains EPA source data. | [./data/epa/](./data/epa) |
+| EPA source | This folder contains EPA source data. | [./data/epa/](./data/epa) | -->
 
 # Hardware 
 
