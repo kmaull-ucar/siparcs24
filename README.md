@@ -48,7 +48,7 @@ The source code for the different implementations can be found as follows:
 |  Data |   Summary | Location |
 | :---: | ----------|----------|
 | PiLoRa | This folder contains source code for PiLoRA tranceiver | [./code/PiLoRA/](./code/PiLoRA/) |
-| Sparkfun | This folder contains source code for PiLoRA tranceiver | [./Code/SprarkfunExplorable](./Code/Sprakfun Explorable) |
+| Sparkfun | This folder contains source code for PiLoRA tranceiver | [./code/Sprarkfun_ExpLoRAble](./code/Sprarkfun_ExpLoRAble) |
 
 # Data 
 
