@@ -45,10 +45,18 @@ Can we do some remote inference of ML models on th Pis?
 
 The source code for the different implementations can be found as follows:
 
-|  Data |   Summary | Location |
-| :---: | ----------|----------|
-| PiLoRa | This folder contains source code for PiLoRA tranceiver | [./code/PiLoRA/](./code/PiLoRA/) |
-| Sparkfun | This folder contains source code for PiLoRA tranceiver | [./code/Sparkfun_ExpLoRAble](./code/Sparkfun_ExpLoRAble) |
+## Transceivers
+
+| Vendor | Board | Frequency | Status | Code Link |
+| :---: | :---: | :--- | :--- | :--- |
+| AdaFruit | Adafruit LoRa Radio Bonnet with OLED - RFM95W | 915mhz | working | This folder contains source code for PiLoRA tranceiver: [./code/PiLoRA/](./code/PiLoRA/) |
+
+## Receivers
+
+| Vendor | Board | Frequency | Status | Code Link |
+| :---: | :---: | :--- | :--- | :--- |
+| Sparkfun | ExpLoRAble | 915mhz | implementation **does not work with PiLoRA** (Adafruit) board | [./code/Sparkfun_ExpLoRAble](./code/Sparkfun_ExpLoRAble) |
+| AdaFruit | ARM Adafruit Feather RP2040 with RFM95 LoRa Radio | 915mhz | in progress | -- |
 
 # Data 
 
