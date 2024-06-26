@@ -68,12 +68,44 @@ Data to be compared with the NEON station
 3. BME 680 (and others to be added later)
 
 
-# PiLoRa setup and installations
+# PiLoRa Setup and Installations
 
-1. Create venv
-2. Activate venv
-3. Active SPI (raspi-config)
-4. Install required libraries
+Follow these steps to set up and install the necessary components for your PiLoRa project:
+
+1. **Create a Virtual Environment:**
+   - On your Raspberry Pi with the bonnet connected, create a virtual environment named `adafruit`:
+     ```
+     python -m venv adafruit
+     ```
+
+2. **Install Required Libraries:**
+   - Install the necessary libraries using the following commands:
+     ```
+     pip3 install adafruit-circuitpython-ssd1306
+     sudo pip3 install adafruit-circuitpython-framebuf
+     sudo pip3 install adafruit-circuitpython-rfm69
+     ```
+
+3. **Activate the Virtual Environment:**
+   - Navigate to your virtual environment's bin directory and activate it:
+     ```
+     cd adafruit/bin
+     source activate
+     ```
+
+4. **Enable SPI:**
+   - Enable SPI by executing the Raspberry Pi configuration tool:
+     ```
+     sudo raspi-config
+     ```
+   - Navigate to `Interface Options` and enable SPI.
+
+5. **Run the Transceiver Script:**
+   - Execute the Python script to see your Raspberry Pi with the bonnet act as a transceiver for LoRa packets:
+     ```
+     python LoRA_bonnet_transceiver.py
+     ```
+
 
 
 
