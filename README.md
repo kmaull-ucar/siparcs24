@@ -20,10 +20,10 @@ This project aims to develop a mesonet of weather monitoring sensors that collec
 4. **Agricultural Applications:** Farmers can use the data to optimize irrigation schedules, protect crops from adverse weather conditions, and improve overall agricultural productivity.
 5. **Urban Planning:** City planners can utilize the data for designing resilient infrastructure that can withstand local weather conditions and mitigate the impact of natural disasters.
 
-This mesonet weather monitoring system leverages the LoRa network and Raspberry Pi gateways to create a scalable and efficient solution for real-time weather data collection and analysis, providing valuable insights and timely information for various practical applications.
 
--   [a rando link
-    (https://loremipsum.io/generator/?n=5&t=p)](https://loremipsum.io/generator/?n=5&t=p)
+
+-   [This project is an extension of the existing OpenIoTwx project
+    ([https://loremipsum.io/generator/?n=5&t=p](https://ncar.github.io/openiotwx/))]([https://loremipsum.io/generator/?n=5&t=p](https://ncar.github.io/openiotwx/))
 
 ![LoRa Mesonet Weather Monitoring System](images/LoRA_firenet.png)
 
