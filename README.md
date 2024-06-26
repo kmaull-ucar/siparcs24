@@ -20,8 +20,6 @@ This project aims to develop a mesonet of weather monitoring sensors that collec
 4. **Agricultural Applications:** Farmers can use the data to optimize irrigation schedules, protect crops from adverse weather conditions, and improve overall agricultural productivity.
 5. **Urban Planning:** City planners can utilize the data for designing resilient infrastructure that can withstand local weather conditions and mitigate the impact of natural disasters.
 
-
-
 -   [This project is an extension of the existing OpenIoTwx project
     (https://ncar.github.io/openiotwx/)](https://ncar.github.io/openiotwx/)
 
@@ -30,7 +28,10 @@ This project aims to develop a mesonet of weather monitoring sensors that collec
 
 # Research Questions
 
-LoRa is a low cost efficient addition to the openIoTwx platform which can be implemented with minimal effort
+LoRa is a low cost efficient addition to the openIoTwx platform which can be implemented with minimal effort.  **We acknowledge** that there are a number of excellent IoT platforms for deploying and managing IoT devices such [ResIoT](https://www.resiot.io/en/home/), [KaaIoT](https://kaaiot.com), [The Things Network](https://thethingsnetwork.org), [ThingsBoard](https://thingsboard.io), [ThingsSpeak](https://thingspeak.com), among others, as well as LoRa networks such as [LoRa Alliance](https://lora-alliance.org), [Azure IoT](), [SenseCAP](), [Meshtastic](https://meshtastic.org) and others.  
+
+The primary goal here is to _develop a locally-operated network of LoRa IoT devices to experiment and understand costs, design details, implementation details and use cases_.
+
 Can we do some remote inference of ML models on th Pis?
 
 
