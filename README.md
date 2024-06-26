@@ -49,7 +49,7 @@ The source code for the different implementations can be found as follows:
 
 | Vendor | Board | Frequency | Status | Code Link |
 | :---: | :---: | :--- | :--- | :--- |
-| AdaFruit | Adafruit LoRa Radio Bonnet with OLED - RFM95W | 915mhz | working | This folder contains source code for PiLoRA tranceiver: [./code/PiLoRA/](./code/PiLoRA/) |
+| AdaFruit | Adafruit LoRa Radio Bonnet with OLED - RFM95W | 915mhz (GPIO Hat) | working | This folder contains source code for PiLoRA tranceiver: [./code/PiLoRA/](./code/PiLoRA/) |
 
 ## Receivers
 
@@ -60,7 +60,6 @@ The source code for the different implementations can be found as follows:
 
 # Data 
 
-
 Data to be compared with the NEON station
 
 
@@ -68,12 +67,14 @@ Data to be compared with the NEON station
 | :---: | ----------|----------|
 | EPA source | This folder contains EPA source data. | [./data/epa/](./data/epa) |
 
-# Devices
-1. [Raspberry Pi 3 Model B
-    (https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/) 
-2. [Adafruit Radio Bonnets with OLED - RFM69 or LoRa - RadioFruit
-    (https://www.adafruit.com/product/4087)](https://www.adafruit.com/product/4087) 
-3. BME 680 (and others to be added later)
+# Hardware 
+
+| Type | Device/Instrument | Purpose | Setup Information |
+| :-- | :-- | :-- | :-- |
+| SBC | [Raspberry Pi 3 Model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/) | provides main  hardware and OS platform for tranceiver | -- | 
+| Sensor  | [Adafruit Qwiic BME 680](https://www.adafruit.com/product/3660) | Atmospheric measurements | -- |
+| MCU | [Adafruit Feather RP2040 LoRA board](https://learn.adafruit.com/adafruit-feather-rp2040-pico/overview) | transmit data at 915mhz over LoRA | -- |
+| MCU | [Sparkfun ExpLoRaBLE WRL17506 Thing Plus LoRA Board](https://www.sparkfun.com/products/17506) | transmit data at 915mhz over LoRA | -- |
 
 
 # PiLoRa Setup and Installations
