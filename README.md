@@ -31,6 +31,9 @@ ut morbi tincidunt augue. Volutpat sed cras ornare arcu dui vivamus.
 -   [a rando link
     (https://loremipsum.io/generator/?n=5&t=p)](https://loremipsum.io/generator/?n=5&t=p)
 
+![LoRA Firenet](/LoRA Firenet.png)
+
+
 ## Mathematical Formulation
 
 The project tries to solve:
