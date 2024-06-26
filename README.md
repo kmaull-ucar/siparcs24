@@ -1,38 +1,31 @@
 # SiPaRCS 2024 Research
 
-2024 Research.
-
-# Project Introduction
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Est ante in nibh
-mauris cursus mattis molestie a iaculis. Feugiat pretium nibh ipsum
-consequat nisl vel. Sed adipiscing diam donec adipiscing tristique risus
-nec. Sit amet risus nullam eget felis eget nunc lobortis mattis. Lectus
-nulla at volutpat diam. Morbi tincidunt ornare massa eget. Sit amet
-volutpat consequat mauris. Tempor orci eu lobortis elementum nibh tellus
-molestie. Montes nascetur ridiculus mus mauris vitae ultricies leo. Quam
-adipiscing vitae proin sagittis nisl rhoncus mattis rhoncus. Placerat in
-egestas erat imperdiet sed. Ultricies tristique nulla aliquet enim
-tortor at auctor urna.
 
 
-Integer malesuada nunc vel risus commodo viverra maecenas. Fermentum
-posuere urna nec tincidunt praesent semper. Massa sed elementum tempus
-egestas sed sed risus. Tortor at auctor urna nunc id cursus metus
-aliquam. Sit amet dictum sit amet justo donec. Risus nullam eget felis
-eget nunc lobortis mattis aliquam. Ornare arcu odio ut sem nulla
-pharetra. Leo duis ut diam quam. Elit sed vulputate mi sit amet mauris
-commodo quis. Et sollicitudin ac orci phasellus egestas tellus rutrum
-tellus. Gravida rutrum quisque non tellus orci ac auctor. Tincidunt dui
-ut ornare lectus sit amet est placerat. Mauris in aliquam sem fringilla
-ut morbi tincidunt augue. Volutpat sed cras ornare arcu dui vivamus.
+## Project Description: Mesonet Weather Monitoring System
 
--   [a rando link
-    (https://loremipsum.io/generator/?n=5&t=p)](https://loremipsum.io/generator/?n=5&t=p)
+This project aims to develop a mesonet of weather monitoring sensors that collect various environmental data, including temperature, humidity, altitude, air quality, UV levels, and rain data. The collected data will be transmitted via a LoRa (Long Range) network to intermediary Raspberry Pi gateways. These Raspberry Pi devices will then forward the aggregated data over the internet to a network server, which distributes the information to application servers for further processing and analysis.
+
+#### Key Components:
+1. **Sensor Devices:** These devices measure and collect weather data. Each sensor node is equipped with LoRa communication capabilities to transmit data wirelessly.
+2. **Raspberry Pi Gateways:** The Raspberry Pi devices act as local gateways, receiving data from multiple sensor devices via the LoRa network. They then transmit this data over the internet to central servers.
+3. **Network Server:** This server acts as a central hub, receiving data from various Raspberry Pi gateways and distributing it to multiple application servers.
+4. **Application Servers:** These servers process the weather data for various applications, including weather modeling and forecasting, real-time alert systems, and environmental monitoring.
+5. **Join Server:** This server handles the network join requests from the sensor devices, ensuring secure and authenticated communication.
+
+#### Use Cases:
+1. **Weather Modeling:** The collected data can be used to create detailed weather models that help in predicting local weather patterns with greater accuracy.
+2. **Real-Time Alert Systems:** The system can generate real-time alerts for severe weather conditions such as storms, heavy rainfall, or extreme temperatures, helping communities to prepare and respond promptly.
+3. **Environmental Monitoring:** Continuous monitoring of air quality, UV levels, and other environmental factors can help in assessing the impact of pollution and climate change, facilitating environmental protection efforts.
+4. **Agricultural Applications:** Farmers can use the data to optimize irrigation schedules, protect crops from adverse weather conditions, and improve overall agricultural productivity.
+5. **Urban Planning:** City planners can utilize the data for designing resilient infrastructure that can withstand local weather conditions and mitigate the impact of natural disasters.
+
+
+
+-   [This project is an extension of the existing OpenIoTwx project
+    (https://ncar.github.io/openiotwx/)](https://ncar.github.io/openiotwx/)
 
 ![LoRA Firenet](images/LoRA_firenet.png)
-
 
 
 # Research Questions
@@ -54,8 +47,8 @@ The source code for the different implementations can be found as follows:
 
 |  Data |   Summary | Location |
 | :---: | ----------|----------|
-| PiLoRa | This folder contains source code for PiLoRA tranceiver | [./cpde/](./code/PiLoRa) |
-| Sparkfun | This folder contains source code for PiLoRA tranceiver | [./cpde/](./code/Sprakfun Explorable) |
+| PiLoRa | This folder contains source code for PiLoRA tranceiver | [./Code/PiLoRa/](./Code/PiLoRa/) |
+| Sparkfun | This folder contains source code for PiLoRA tranceiver | [./Code/SprarkfunExplorable](./Code/Sprakfun Explorable) |
 
 # Data 
 
