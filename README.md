@@ -82,8 +82,8 @@ Follow these steps to set up and install the necessary components for your PiLoR
    - Install the necessary libraries using the following commands:
      ```
      pip3 install adafruit-circuitpython-ssd1306
-     sudo pip3 install adafruit-circuitpython-framebuf
-     sudo pip3 install adafruit-circuitpython-rfm69
+     pip3 install adafruit-circuitpython-framebuf
+     pip3 install adafruit-circuitpython-rfm69
      ```
 
 3. **Activate the Virtual Environment:**
@@ -103,7 +103,7 @@ Follow these steps to set up and install the necessary components for your PiLoR
 5. **Run the Transceiver Script:**
    - Execute the Python script to see your Raspberry Pi with the bonnet act as a transceiver for LoRa packets:
      ```
-     python LoRA_bonnet_transceiver.py
+     python3 LoRA_bonnet_transceiver.py
      ```
 
 
