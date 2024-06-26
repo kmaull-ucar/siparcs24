@@ -23,7 +23,7 @@ This project aims to develop a mesonet of weather monitoring sensors that collec
 
 
 -   [This project is an extension of the existing OpenIoTwx project
-    ([https://loremipsum.io/generator/?n=5&t=p](https://ncar.github.io/openiotwx/))]([https://loremipsum.io/generator/?n=5&t=p](https://ncar.github.io/openiotwx/))
+    (https://ncar.github.io/openiotwx/)]((https://ncar.github.io/openiotwx/))
 
 ![LoRa Mesonet Weather Monitoring System](images/LoRA_firenet.png)
 
