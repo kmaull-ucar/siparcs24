@@ -1,4 +1,4 @@
-# SiPaRCS 2024 Research: <br/><br/>Mesonet Weather Monitoring System Using Community-based Private LoRa Network
+# SiPaRCS 2024 Research: <br/><br/>Environmental Data Sensing and Monitoring System Using Community-based Private LoRa Network
 
 
 ## Project Description
@@ -34,12 +34,13 @@ The primary goal here is to _develop a locally-operated network of LoRa IoT devi
 Can we do some remote inference of ML models on th Pis?
 
 
-|  RQ |   Summary | Notebook |
-| :---: | ----------|----------|
-| 1 | How reliable is the data collected with these low cost devices compared to standard ones? | [./notebooks/00_extract.ipynb](./notebooks/00_extract.ipynb) |
-| 2 | Are the data communications between the weather stations done reliably? | [./notebooks/01_explore.ipynb](./notebooks/01_explore.ipynb) |
-| 3 | How reliable is the data collected with these low cost devices compared to standard ones? | [./notebooks/00_extract.ipynb](./notebooks/00_extract.ipynb) |
-| 2 | Can we do some remote inference of ML models on th Pis?  | [./notebooks/01_explore.ipynb](./notebooks/01_explore.ipynb) |
+|  # |   RQ | Narrative |
+| :---: | --------- | -------- |
+| 1a | What are the technologies required to develop a community-based private LoRa network? | [./notebooks/RQ1.ipynb](./notebooks/00_extract.ipynb) |
+| 1b | What are the software and hardware architectures that can provide commodity hardware Pi-based community-private environmental data sensing LoRa networks? | [./notebooks/RQ1.ipynb](./notebooks/RQ1.ipynb) |
+| 1c | What is the risk/benefit of Pi-based community-private LoRa implementations for environmental data sensing versus public LoRa / Mesh networks? | [./notebooks/RQ1.ipynb](./notebooks/RQ1.ipynb) |
+| 1d| What are the data collection, transmission and reliability characteristics of  community-private LoRa implementations compared to more advanced commercial or open source alternatives? | [./notebooks/RQ1.ipynb](./notebooks/RQ1.ipynb) |
+| 2* | What edge-ML technologies can be implemented within LoRa environmental data sensing contexts for edge inference on th Pis-based hardware?  | [./notebooks/RQ2.ipynb](./notebooks/RQ2.ipynb) |
 
 # Code
 
