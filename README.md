@@ -1,10 +1,9 @@
-# SiPaRCS 2024 Research
+# SiPaRCS 2024 Research: <br/><br/>Mesonet Weather Monitoring System Using Community-based Private LoRa Network
 
 
+## Project Description
 
-## Project Description: Mesonet Weather Monitoring System
-
-This project aims to develop a mesonet of weather monitoring sensors that collect various environmental data, including temperature, humidity, altitude, air quality, UV levels, and rain data. The collected data will be transmitted via a LoRa (Long Range) network to intermediary Raspberry Pi gateways. These Raspberry Pi devices will then forward the aggregated data over the internet to a network server, which distributes the information to application servers for further processing and analysis.
+This project aims to develop a mesonet of IoT weather monitoring sensors that collect various environmental data, including temperature, humidity, altitude, air quality, UV levels, and rain data. The collected data will be transmitted via a community-maintained private LoRa (Long Range) network to intermediary custom Raspberry Pi gateways. These Raspberry Pi devices forward the aggregated data over the internet to a network server, which distributes the information to application servers for further processing and analysis.
 
 #### Key Components:
 1. **Sensor Devices:** These devices measure and collect weather data. Each sensor node is equipped with LoRa communication capabilities to transmit data wirelessly.
