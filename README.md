@@ -117,6 +117,45 @@ Follow these steps to set up and install the necessary components for your PiLoR
      ```
 
 
+Here's the refined text for the README section of your GitHub project:
+
+---
+
+# RP2040 Setup and Installations
+
+To set up the RP2040 board in the Arduino IDE, follow these steps:
+
+1. **Add the Board Manager URL:**
+   - Open the Arduino IDE.
+   - Navigate to `File > Preferences`.
+   - In the `Additional Boards Manager URLs` field, add the following URL
+     ```
+     https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+     ```
+  
+
+2. **Install the RP2040 Board Package:**
+   - In the Arduino IDE, go to `Tools > Board > Boards Manager`.
+   - Search for `RP2040`.
+   - Find the entry for `Raspberry Pi Pico/RP2040 by Earle F Philhower, III`.
+   - Click `Install`.
+
+3. **Select the Adafruit Feather RP2040 RFM Board:**
+   - Go to `Tools > Board`.
+   - Scroll down and select `Raspberry Pi RP2040 Boards`.
+   - Choose `Adafruit Feather RP2040 RFM` from the list.
+
+4. **Enter Bootloader Mode:**
+   - To upload code, the RP2040 needs to be in bootloader mode.
+   - Hold down the “Boot” button on the RP2040 while plugging it into your computer via USB.
+
+5. **Upload the Code:**
+   - Once in bootloader mode, compile and upload the sketch `Feather_tx.ino` to the board.
+
+6. **Verify Data Transmission:**
+   - After uploading the sketch, you should be able to receive the data packets sent from the RP2040 on your Raspberry Pi.
+
+
 
 
 # Manuscript
