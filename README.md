@@ -116,11 +116,6 @@ Follow these steps to set up and install the necessary components for your PiLoR
      python3 LoRA_bonnet_transceiver.py
      ```
 
-
-Here's the refined text for the README section of your GitHub project:
-
----
-
 # RP2040 Setup and Installations
 
 To set up the RP2040 board in the Arduino IDE, follow these steps:
