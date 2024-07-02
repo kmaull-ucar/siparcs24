@@ -94,6 +94,7 @@ Follow these steps to set up and install the necessary components for your PiLoR
      pip3 install adafruit-circuitpython-ssd1306
      pip3 install adafruit-circuitpython-framebuf
      pip3 install adafruit-circuitpython-rfm69
+     pip3 install paho-mqtt
      ```
 
 3. **Activate the Virtual Environment:**
