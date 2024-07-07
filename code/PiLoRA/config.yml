@@ -1,0 +1,9 @@
+radio:
+  freq: 915.0
+  power: 23
+  rcv_timeout: 5.0
+
+mqtt:
+  broker_ip: your.broker.ip
+  broker_port: 1883
+  msg_topic: "/root/sub/sub/topic"
