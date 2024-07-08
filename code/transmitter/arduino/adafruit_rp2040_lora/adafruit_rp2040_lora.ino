@@ -9,7 +9,8 @@
 #include <SPI.h>
 #include <RH_RF95.h>
 #include "Adafruit_Si7021.h"
-
+#include <Adafruit_Sensor.h>
+#include "Adafruit_BME680.h"
 
 
 // First 3 here are boards w/radio BUILT-IN. Boards using FeatherWing follow.
@@ -56,21 +57,44 @@
 #endif
 
 #define RF95_FREQ 915.0
+#define SEALEVELPRESSURE_HPA (1013.25)
 
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
 Adafruit_Si7021 si7021   = Adafruit_Si7021();
+Adafruit_BME680 bme680; 
 char    device_id[64]    = {0};
 bool si7021_enableHeater = false;
 int16_t packetnum        = 0;  // packet counter, we increment per xmission
 int led                  = LED_BUILTIN;
 
 bool si7021_connected    = false;
+bool bme680_connected    = false;
 
 // generic struct for storing data; updated based on sensors
 struct sensor_data {
   float temperature;
   float humidity;
+  float pressure;
 };
+
+
+/***
+ * 
+ */
+bool bme680_init() {  
+  if (!bme680.begin()) {
+    Serial.println("Could not find a valid BME680 sensor, check wiring!");
+    return false;
+  }
+
+  bme680.setTemperatureOversampling(BME680_OS_8X);
+  bme680.setHumidityOversampling(BME680_OS_2X);
+  bme680.setPressureOversampling(BME680_OS_4X);
+  bme680.setIIRFilterSize(BME680_FILTER_SIZE_3);
+  bme680.setGasHeater(320, 150); // 320*C for 150 ms
+
+  return true;
+}
 
 
 /***
@@ -169,6 +193,22 @@ bool rfm95_init() {
 /***
  * 
  */
+void rfm95_send(char* packet) {  
+    Serial.print("[info]: sending packet >> "); Serial.println(packet);  
+    Serial.println("Sending...");
+    delay(10);
+    
+    rf95.send((uint8_t *)packet, strlen(packet));
+  
+    Serial.println("Waiting for packet to complete...");
+    delay(10);
+    rf95.waitPacketSent();
+}
+
+
+/***
+ * 
+ */
 struct sensor_data si7021_get_measurements() {
   struct sensor_data measurement;
 
@@ -180,8 +220,69 @@ struct sensor_data si7021_get_measurements() {
   measurement.temperature = si7021.readTemperature();
   Serial.println(measurement.temperature, 2);
 
+  return measurement;
+}
+
+
+/***
+ * 
+ */
+void si7021_send_measurements(struct sensor_data measurements) {
+  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
+  
+  Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/temperature\nm:%.2f\nt:0", device_id, measurements.temperature);  
+  rfm95_send(radiopacket);
+  
+  delay(50);
+  
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/humidity\nm:%.2f\nt:0", device_id, measurements.humidity);
+  rfm95_send(radiopacket);
+}
+
+
+/***
+ * 
+ */
+struct sensor_data bme680_get_measurements() {
+  struct sensor_data measurement;
+
+  if (!bme680.performReading()) {
+    Serial.println("[error]: Failed to perform reading :(");
+    return measurement;
+  }
+  
+  Serial.print("[info]: bme680 humidity:    ");
+  measurement.humidity = bme680.humidity;
+  Serial.print(measurement.humidity, 2);
+
+  Serial.print("\ttemperature: ");
+  measurement.temperature = bme680.temperature;
+
+  
+  Serial.print("\pressure: ");
+  measurement.pressure = bme680.pressure / 100.0;
+  Serial.println(measurement.pressure, 2);
+
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
   return measurement;
+}
+
+
+/***
+ * 
+ */
+void bme680_send_measurements(struct sensor_data measurements) {
+  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/temperature\nm:%.2f\nt:0", device_id, measurements.temperature);
+  rfm95_send(radiopacket);
+  
+  delay(50);
+  
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/humidity\nm:%.2f\nt:0", device_id, measurements.humidity);
+  rfm95_send(radiopacket);
 }
 
 
@@ -198,30 +299,28 @@ void setup() {
 
   // start up sensors
   si7021_connected = si7021_init();
+  bme680_connected = bme680_init();
 }
 
 
 void loop() {
   struct sensor_data measurements;
-  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
 
   if (si7021_connected) {
     measurements = si7021_get_measurements();
-  
-    sprintf(radiopacket, "rid:%s\nt:%.2f\nh:%.2f ", device_id, measurements.temperature, measurements.humidity);
-  
-    Serial.print("[info]: sending packet >> "); Serial.println(radiopacket);  
-    Serial.println("Sending...");
-    delay(10);
-    
-    rf95.send((uint8_t *)radiopacket, strlen(radiopacket));
-  
-    Serial.println("Waiting for packet to complete...");
-    delay(10);
-    rf95.waitPacketSent();
-  
+//    if (measurements) {
+      si7021_send_measurements(measurements);
+      blink_led();
+//    }
+  }
+
+  if (bme680_connected) {
+    measurements = bme680_get_measurements();
+    bme680_send_measurements(measurements);
     blink_led();
   }
+
+  
   
   delay(1000); // Wait 1 second between transmits, could also 'sleep' here!  
 }
