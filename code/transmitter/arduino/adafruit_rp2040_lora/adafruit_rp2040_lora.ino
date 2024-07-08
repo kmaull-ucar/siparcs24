@@ -208,12 +208,13 @@ void loop() {
   if (si7021_connected) {
     measurements = si7021_get_measurements();
   
-    sprintf(radiopacket, "did: %s\nt:%.2f\nh:%.2f ", device_id, measurements.temperature, measurements.humidity);
+    sprintf(radiopacket, "rid:%s\nt:%.2f\nh:%.2f ", device_id, measurements.temperature, measurements.humidity);
   
     Serial.print("[info]: sending packet >> "); Serial.println(radiopacket);  
     Serial.println("Sending...");
     delay(10);
-    rf95.send((uint8_t *)radiopacket, 25);
+    
+    rf95.send((uint8_t *)radiopacket, strlen(radiopacket));
   
     Serial.println("Waiting for packet to complete...");
     delay(10);
