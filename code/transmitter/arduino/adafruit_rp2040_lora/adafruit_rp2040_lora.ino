@@ -10,11 +10,7 @@
 #include <RH_RF95.h>
 #include "Adafruit_Si7021.h"
 
-bool enableHeater = false;
-uint8_t loopCnt = 0;
 
-Adafruit_Si7021 si7021 = Adafruit_Si7021();
-int led = LED_BUILTIN;
 
 // First 3 here are boards w/radio BUILT-IN. Boards using FeatherWing follow.
 #if defined (__AVR_ATmega32U4__)  // Feather 32u4 w/Radio
@@ -61,23 +57,33 @@ int led = LED_BUILTIN;
 
 #define RF95_FREQ 915.0
 
-// Singleton instance of the radio driver
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
-char*   device_id[64] = 0;
-int16_t packetnum     = 0;  // packet counter, we increment per xmission
+Adafruit_Si7021 si7021   = Adafruit_Si7021();
+char    device_id[64]    = {0};
+bool si7021_enableHeater = false;
+int16_t packetnum        = 0;  // packet counter, we increment per xmission
+int led                  = LED_BUILTIN;
 
+bool si7021_connected    = false;
+
+// generic struct for storing data; updated based on sensors
 struct sensor_data {
   float temperature;
   float humidity;
 };
 
+
+/***
+ * 
+ */
 bool si7021_init() {
+  
   if (!si7021.begin()) {
-    Serial.println("Did not find Si7021 sensor!");
+    Serial.println("[error]: Adafruit si7021 qwiic sensor not found");
 	return false;
   }
 
-  Serial.print("Found model ");
+  Serial.print("[info]: Adafruit si7021 qwiic sensor found: model >>");
   switch(si7021.getModel()) {
     case SI_Engineering_Samples:
       Serial.print("SI engineering samples"); break;
@@ -95,15 +101,17 @@ bool si7021_init() {
   Serial.print(si7021.getRevision());
   Serial.print(")");
   Serial.print(" Serial #"); Serial.print(si7021.sernum_a, HEX); Serial.println(si7021.sernum_b, HEX);
+
+  // set device id sent with packet
+  sprintf(device_id, "%.2X%.2X", si7021.sernum_a, si7021.sernum_b);
   
   return true;
 }
 
 
-bool si7021_init() {
-}
-
-
+/***
+ * 
+ */
 void blink_led() {
   digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(500);                // wait for a half second
@@ -112,27 +120,37 @@ void blink_led() {
 }
 
 
-void setup() {
+/***
+ * 
+ */
+void rfm95_start() {
   pinMode(RFM95_RST, OUTPUT);
   pinMode(led, OUTPUT);
   digitalWrite(RFM95_RST, HIGH);
+}
 
-  Serial.begin(115200);
-  delay(100);
 
-  Serial.println("This is IoTwx-LoRa-RP2040 v0.1 ...");
-
-  // manual reset
+/***
+ * 
+ */
+void rfm95_reset() {
   digitalWrite(RFM95_RST, LOW);
   delay(10);
   digitalWrite(RFM95_RST, HIGH);
   delay(10);
+}
 
+
+/***
+ * 
+ */
+bool rfm95_init() {
   while (!rf95.init()) {
-    Serial.println("[warn]: LoRa radio init failed");
-    Serial.println("[warn]: Uncomment '#define SERIAL_DEBUG' in RH_RF95.cpp for detailed debug info");
-    while (1);
+      Serial.println("[warn]: LoRa radio init failed");
+      Serial.println("[warn]: Uncomment '#define SERIAL_DEBUG' in RH_RF95.cpp for detailed debug info");
+      return false;
   }
+
   Serial.println("[info] Adafruit RP2040-LoRa radio init OK!");
 
   // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM
@@ -144,45 +162,65 @@ void setup() {
 
   rf95.setTxPower(23, false); // 23 is this highest power
 
-  si7021_init();
+  return true;
 }
 
+
+/***
+ * 
+ */
 struct sensor_data si7021_get_measurements() {
-	struct sensor_data measurement;
+  struct sensor_data measurement;
 
-	Serial.print("Humidity:    ");
-	measurement.humidity = si7021.readHumidity();
-	Serial.print(h, 2);
+  Serial.print("[info]: si7021 humidity:    ");
+  measurement.humidity = si7021.readHumidity();
+  Serial.print(measurement.humidity, 2);
 
-	Serial.print("\tTemperature: ");
-	measurement.temperature = si7021.readTemperature();
-	Serial.println(t, 2);
+  Serial.print("\ttemperature: ");
+  measurement.temperature = si7021.readTemperature();
+  Serial.println(measurement.temperature, 2);
 
-	Serial.println("Transmitting..."); // Send a message to rf95_server
+  Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
+  return measurement;
+}
 
-	return measurement;
+
+void setup() {
+  delay(5000);
+  Serial.begin(115200);
+  delay(100);
+  Serial.println("*** This is IoTwx-LoRa-RP2040 v0.1 ...");
+
+  // setup radio
+  rfm95_start();
+  rfm95_reset(); // bounce the radio once more
+  rfm95_init();
+
+  // start up sensors
+  si7021_connected = si7021_init();
 }
 
 
 void loop() {
-  struct sensor_data  = si7021_get_measurements();
+  struct sensor_data measurements;
+  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
 
-  delay(1000); // Wait 1 second between transmits, could also 'sleep' here!
-
-  char radiopacket[254]; // max packet is 254 bytes, alloc it all now
-  sprintf(radiopacket, "[F1] T:%.2f H:%.2f ", t, h);
-
-  Serial.print("Sending "); Serial.println(radiopacket);
-  radiopacket[19] = 0;
-
-  Serial.println("Sending...");
-  delay(10);
-  rf95.send((uint8_t *)radiopacket, 25);
-
-  Serial.println("Waiting for packet to complete...");
-  delay(10);
-  rf95.waitPacketSent();
-
-  blink_led();
+  if (si7021_connected) {
+    measurements = si7021_get_measurements();
+  
+    sprintf(radiopacket, "did: %s\nt:%.2f\nh:%.2f ", device_id, measurements.temperature, measurements.humidity);
+  
+    Serial.print("[info]: sending packet >> "); Serial.println(radiopacket);  
+    Serial.println("Sending...");
+    delay(10);
+    rf95.send((uint8_t *)radiopacket, 25);
+  
+    Serial.println("Waiting for packet to complete...");
+    delay(10);
+    rf95.waitPacketSent();
+  
+    blink_led();
+  }
+  
+  delay(1000); // Wait 1 second between transmits, could also 'sleep' here!  
 }
-
