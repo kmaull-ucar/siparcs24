@@ -88,9 +88,6 @@ bool si7021_init() {
   Serial.print(")");
   Serial.print(" Serial #"); Serial.print(si7021.sernum_a, HEX); Serial.println(si7021.sernum_b, HEX);
 
-  // set device id sent with packet
-  sprintf(device_id, "%.2X%.2X", si7021.sernum_a, si7021.sernum_b);
-  
   return true;
 }
 
@@ -217,7 +214,7 @@ bool bme680_measure_transmit() {
   measurement.temperature = bme680.temperature;
 
   
-  Serial.print("\pressure: ");
+  Serial.print("\tpressure: ");
   measurement.pressure = bme680.pressure / 100.0;
   Serial.println(measurement.pressure, 2);
 
