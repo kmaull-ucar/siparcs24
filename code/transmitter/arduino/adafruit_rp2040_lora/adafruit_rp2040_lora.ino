@@ -228,6 +228,9 @@ bool bme680_measure_transmit() {
   sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/humidity\nm:%.2f\nt:0", device_id, measurement.humidity);
   rfm95_send(radiopacket);
 
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/pressure\nm:%.2f\nt:0", device_id, measurement.pressure);
+  rfm95_send(radiopacket);
+
   return true;
 }
 
