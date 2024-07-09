@@ -69,7 +69,7 @@ The source code for the different implementations can be found as follows:
 | Vendor | Board | Frequency | Status | Code Link |
 | :---: | :---: | :--- | :--- | :--- |
 | Sparkfun | ExpLoRAble | 915mhz | implementation **does not work with PiLoRA** (Adafruit) board | [./code/Sparkfun_ExpLoRAble](./code/Sparkfun_ExpLoRAble) |
-| AdaFruit | ARM Adafruit Feather RP2040 with RFM95 LoRa Radio | 915mhz | in progress | [./code/transmitter/arduino/adafruit_rp2040_lora](./code/transmitter/arduino/adafruit_rp2040_lora  |
+| AdaFruit | ARM Adafruit Feather RP2040 with RFM95 LoRa Radio | 915mhz | in progress | [./code/transmitter/arduino/adafruit_rp2040_lora](./code/transmitter/arduino/adafruit_rp2040_lora)  |
 
 <!-- # Data 
 
