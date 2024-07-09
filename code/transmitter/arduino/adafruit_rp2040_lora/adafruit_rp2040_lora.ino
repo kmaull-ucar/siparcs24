@@ -11,64 +11,26 @@
 #include "Adafruit_Si7021.h"
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BME680.h"
+#include <ArduinoUniqueID.h> // https://github.com/ricaun/ArduinoUniqueID
 
-
-// First 3 here are boards w/radio BUILT-IN. Boards using FeatherWing follow.
-#if defined (__AVR_ATmega32U4__)  // Feather 32u4 w/Radio
-  #define RFM95_CS    8
-  #define RFM95_INT   7
-  #define RFM95_RST   4
-
-#elif defined(ADAFRUIT_FEATHER_M0) || defined(ADAFRUIT_FEATHER_M0_EXPRESS) || defined(ARDUINO_SAMD_FEATHER_M0)  // Feather M0 w/Radio
-  #define RFM95_CS    8
-  #define RFM95_INT   3
-  #define RFM95_RST   4
-
-#elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_RFM)  // Feather RP2040 w/Radio
+#if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_RFM)  // Feather RP2040 w/Radio
   #define RFM95_CS   16
   #define RFM95_INT  21
   #define RFM95_RST  17
-
-#elif defined (__AVR_ATmega328P__)  // Feather 328P w/wing
-  #define RFM95_CS    4  //
-  #define RFM95_INT   3  //
-  #define RFM95_RST   2  // "A"
-
-#elif defined(ESP8266)  // ESP8266 feather w/wing
-  #define RFM95_CS    2  // "E"
-  #define RFM95_INT  15  // "B"
-  #define RFM95_RST  16  // "D"
-
-#elif defined(ARDUINO_ADAFRUIT_FEATHER_ESP32S2) || defined(ARDUINO_NRF52840_FEATHER) || defined(ARDUINO_NRF52840_FEATHER_SENSE)
-  #define RFM95_CS   10  // "B"
-  #define RFM95_INT   9  // "A"
-  #define RFM95_RST  11  // "C"
-
-#elif defined(ESP32)  // ESP32 feather w/wing
-  #define RFM95_CS   33  // "B"
-  #define RFM95_INT  27  // "A"
-  #define RFM95_RST  13
-
-#elif defined(ARDUINO_NRF52832_FEATHER)  // nRF52832 feather w/wing
-  #define RFM95_CS   11  // "B"
-  #define RFM95_INT  31  // "C"
-  #define RFM95_RST   7  // "A"
-
 #endif
 
 #define RF95_FREQ 915.0
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-RH_RF95 rf95(RFM95_CS, RFM95_INT);
-Adafruit_Si7021 si7021   = Adafruit_Si7021();
+RH_RF95         rf95(RFM95_CS, RFM95_INT);
+Adafruit_Si7021 si7021              = Adafruit_Si7021();
 Adafruit_BME680 bme680; 
-char    device_id[64]    = {0};
-bool si7021_enableHeater = false;
-int16_t packetnum        = 0;  // packet counter, we increment per xmission
-int led                  = LED_BUILTIN;
-
-bool si7021_connected    = false;
-bool bme680_connected    = false;
+char            device_id[64]       = {0};
+bool            si7021_enableHeater = false;
+int16_t         packetnum           = 0;  // packet counter, we increment per xmission
+int             led                  = LED_BUILTIN;
+bool            si7021_connected    = false;
+bool            bme680_connected    = false;
 
 // generic struct for storing data; updated based on sensors
 struct sensor_data {
@@ -209,8 +171,9 @@ void rfm95_send(char* packet) {
 /***
  * 
  */
-struct sensor_data si7021_get_measurements() {
+bool si7021_measure_transmit() {
   struct sensor_data measurement;
+  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
 
   Serial.print("[info]: si7021 humidity:    ");
   measurement.humidity = si7021.readHumidity();
@@ -220,37 +183,30 @@ struct sensor_data si7021_get_measurements() {
   measurement.temperature = si7021.readTemperature();
   Serial.println(measurement.temperature, 2);
 
-  return measurement;
-}
-
-
-/***
- * 
- */
-void si7021_send_measurements(struct sensor_data measurements) {
-  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
-  
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/temperature\nm:%.2f\nt:0", device_id, measurements.temperature);  
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/temperature\nm:%.2f\nt:0", device_id, measurement.temperature);  
   rfm95_send(radiopacket);
   
   delay(50);
   
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/humidity\nm:%.2f\nt:0", device_id, measurements.humidity);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/humidity\nm:%.2f\nt:0", device_id, measurement.humidity);
   rfm95_send(radiopacket);
+
+  return true;
 }
 
 
 /***
  * 
  */
-struct sensor_data bme680_get_measurements() {
+bool bme680_measure_transmit() {
   struct sensor_data measurement;
+  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
 
   if (!bme680.performReading()) {
     Serial.println("[error]: Failed to perform reading :(");
-    return measurement;
+    return false;
   }
   
   Serial.print("[info]: bme680 humidity:    ");
@@ -266,23 +222,16 @@ struct sensor_data bme680_get_measurements() {
   Serial.println(measurement.pressure, 2);
 
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
-  return measurement;
-}
 
-
-/***
- * 
- */
-void bme680_send_measurements(struct sensor_data measurements) {
-  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
-
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/temperature\nm:%.2f\nt:0", device_id, measurements.temperature);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/temperature\nm:%.2f\nt:0", device_id, measurement.temperature);
   rfm95_send(radiopacket);
   
   delay(50);
   
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/humidity\nm:%.2f\nt:0", device_id, measurements.humidity);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/humidity\nm:%.2f\nt:0", device_id, measurement.humidity);
   rfm95_send(radiopacket);
+
+  return true;
 }
 
 
@@ -296,7 +245,12 @@ void setup() {
   rfm95_start();
   rfm95_reset(); // bounce the radio once more
   rfm95_init();
+     
+  for(size_t i = 0; i < UniqueIDsize; i++)
+    sprintf(&device_id[i], "%.2X", UniqueID[i]);
 
+  Serial.print("[info]: device_id ==> ");  Serial.println(device_id);
+  
   // start up sensors
   si7021_connected = si7021_init();
   bme680_connected = bme680_init();
@@ -305,22 +259,21 @@ void setup() {
 
 void loop() {
   struct sensor_data measurements;
-
+  bool transmit_ok; 
+  
   if (si7021_connected) {
-    measurements = si7021_get_measurements();
-//    if (measurements) {
-      si7021_send_measurements(measurements);
+    transmit_ok = si7021_measure_transmit();
+    if (transmit_ok) {
       blink_led();
-//    }
+    }
   }
 
   if (bme680_connected) {
-    measurements = bme680_get_measurements();
-    bme680_send_measurements(measurements);
-    blink_led();
+    transmit_ok = bme680_measure_transmit();
+    if (transmit_ok) {
+      blink_led();
+    }
   }
-
-  
   
   delay(1000); // Wait 1 second between transmits, could also 'sleep' here!  
 }
