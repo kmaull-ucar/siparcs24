@@ -24,7 +24,7 @@ This project aims to develop a mesonet of IoT weather monitoring sensors that co
 
 
 
-![LoRA Firenet](images/LoRAFirenet.jpg)
+![LoRA Firenet](images/LoRA_Firenet.jpg)
 
 # Research Questions
 
