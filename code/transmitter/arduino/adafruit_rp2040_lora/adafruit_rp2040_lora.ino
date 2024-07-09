@@ -8,10 +8,13 @@
 
 #include <SPI.h>
 #include <RH_RF95.h>
-#include "Adafruit_Si7021.h"
+#include "RTClib.h"
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BME680.h"
+#include <Adafruit_TMP117.h>
+#include "Adafruit_Si7021.h"
 #include <ArduinoUniqueID.h> // https://github.com/ricaun/ArduinoUniqueID
+
 
 #if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_RFM)  // Feather RP2040 w/Radio
   #define RFM95_CS   16
@@ -23,27 +26,95 @@
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 RH_RF95         rf95(RFM95_CS, RFM95_INT);
+RTC_PCF8523     pcf8523_rtc;
 Adafruit_Si7021 si7021              = Adafruit_Si7021();
 Adafruit_BME680 bme680; 
+Adafruit_TMP117 tmp117;
+
 char            device_id[64]       = {0};
-bool            si7021_enableHeater = false;
 int16_t         packetnum           = 0;  // packet counter, we increment per xmission
 int             led                  = LED_BUILTIN;
+bool            si7021_enableHeater = false;
 bool            si7021_connected    = false;
 bool            bme680_connected    = false;
+bool            tmp117_connected    = false;
+bool            pcf8523_connected   = false;
 
 // generic struct for storing data; updated based on sensors
 struct sensor_data {
   float temperature;
   float humidity;
   float pressure;
+  long  tm = 0;
 };
+
+
+bool pcf8523_rtc_init() { 
+  if (!pcf8523_rtc.begin()) {
+    Serial.println("[warn]: couldn't find PCF8523 RTC");
+    Serial.flush();
+    return false;
+  }
+
+  if (! pcf8523_rtc.initialized() || pcf8523_rtc.lostPower()) {
+    Serial.println("[warn]: PCF8523 RTC is NOT initialized, let's set the time!");
+    // When time needs to be set on a new device, or after a power loss, the
+    // following line sets the RTC to the date & time this sketch was compiled
+    pcf8523_rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+    //
+    // Note: allow 2 seconds after inserting battery or applying external power
+    // without battery before calling adjust(). This gives the PCF8523's
+    // crystal oscillator time to stabilize. If you call adjust() very quickly
+    // after the RTC is powered, lostPower() may still return true.
+  }
+
+  // When time needs to be re-set on a previously configured device, the
+  // following line sets the RTC to the date & time this sketch was compiled
+  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  // This line sets the RTC with an explicit date & time, for example to set
+  // January 21, 2014 at 3am you would call:
+  // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+
+  // When the RTC was stopped and stays connected to the battery, it has
+  // to be restarted by clearing the STOP bit. Let's do this to ensure
+  // the RTC is running.
+  pcf8523_rtc.start();
+
+   // The PCF8523 can be calibrated for:
+  //        - Aging adjustment
+  //        - Temperature compensation
+  //        - Accuracy tuning
+  // The offset mode to use, once every two hours or once every minute.
+  // The offset Offset value from -64 to +63. See the Application Note for calculation of offset values.
+  // https://www.nxp.com/docs/en/application-note/AN11247.pdf
+  // The deviation in parts per million can be calculated over a period of observation. Both the drift (which can be negative)
+  // and the observation period must be in seconds. For accuracy the variation should be observed over about 1 week.
+  // Note: any previous calibration should cancelled prior to any new observation period.
+  // Example - RTC gaining 43 seconds in 1 week
+  float drift = 43; // seconds plus or minus over oservation period - set to 0 to cancel previous calibration.
+  float period_sec = (7 * 86400);  // total obsevation period in seconds (86400 = seconds in 1 day:  7 days = (7 * 86400) seconds )
+  float deviation_ppm = (drift / period_sec * 1000000); //  deviation in parts per million (μs)
+  float drift_unit = 4.34; // use with offset mode PCF8523_TwoHours
+  // float drift_unit = 4.069; //For corrections every min the drift_unit is 4.069 ppm (use with offset mode PCF8523_OneMinute)
+  int offset = round(deviation_ppm / drift_unit);
+  // rtc.calibrate(PCF8523_TwoHours, offset); // Un-comment to perform calibration once drift (seconds) and observation period (seconds) are correct
+  // rtc.calibrate(PCF8523_TwoHours, 0); // Un-comment to cancel previous calibration
+
+  Serial.print("[info]: PCF8523 RTC Offset is "); Serial.println(offset); // Print to control offset
+  pcf8523_connected = true;
+  
+  return true;
+}
 
 
 /***
  * 
  */
 bool bme680_init() {  
+  delay(500);
   if (!bme680.begin()) {
     Serial.println("Could not find a valid BME680 sensor, check wiring!");
     return false;
@@ -62,8 +133,23 @@ bool bme680_init() {
 /***
  * 
  */
-bool si7021_init() {
+bool tmp117_init() {
+  delay(500);
+  if (!tmp117.begin()) {
+    Serial.println("[error]: Adafruit TMP117 qwiic sensor not found");
+    return false;
+  }
   
+  Serial.println("[info]: Adafruit TMP117 qwiic sensor found");
+  return true;
+}
+
+
+/***
+ * 
+ */
+bool si7021_init() {
+  delay(500);
   if (!si7021.begin()) {
     Serial.println("[error]: Adafruit si7021 qwiic sensor not found");
 	return false;
@@ -168,10 +254,42 @@ void rfm95_send(char* packet) {
 /***
  * 
  */
-bool si7021_measure_transmit() {
+bool tmp117_measure_transmit() {
   struct sensor_data measurement;
   char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
 
+  if (pcf8523_connected) {
+    measurement.tm = pcf8523_rtc.now().unixtime();
+  }
+  
+  sensors_event_t temp; 
+  tmp117.getEvent(&temp); 
+
+  Serial.print("[info]: tmp117 humidity:    ");
+
+  Serial.print("\ttemperature: ");
+  measurement.temperature = temp.temperature;
+  Serial.println(measurement.temperature, 2);
+
+  Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
+
+  delay(50);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/tmp117/temperature\nm:%.2f\nt:%lu", device_id, measurement.temperature, measurement.tm);  
+  rfm95_send(radiopacket);
+  
+  return true;
+}
+/***
+ * 
+ */
+bool si7021_measure_transmit() {
+  struct sensor_data measurement;
+  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
+  
+  if (pcf8523_connected) {
+    measurement.tm = pcf8523_rtc.now().unixtime();
+  }
+  
   Serial.print("[info]: si7021 humidity:    ");
   measurement.humidity = si7021.readHumidity();
   Serial.print(measurement.humidity, 2);
@@ -182,12 +300,12 @@ bool si7021_measure_transmit() {
 
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/temperature\nm:%.2f\nt:0", device_id, measurement.temperature);  
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/temperature\nm:%.2f\nt:%lu", device_id, measurement.temperature, measurement.tm);  
   rfm95_send(radiopacket);
   
   delay(50);
   
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/humidity\nm:%.2f\nt:0", device_id, measurement.humidity);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/humidity\nm:%.2f\nt:%lu", device_id, measurement.humidity, measurement.tm);
   rfm95_send(radiopacket);
 
   return true;
@@ -201,6 +319,10 @@ bool bme680_measure_transmit() {
   struct sensor_data measurement;
   char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
 
+  if (pcf8523_connected) {
+    measurement.tm = pcf8523_rtc.now().unixtime();
+  }
+  
   if (!bme680.performReading()) {
     Serial.println("[error]: Failed to perform reading :(");
     return false;
@@ -220,15 +342,15 @@ bool bme680_measure_transmit() {
 
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/temperature\nm:%.2f\nt:0", device_id, measurement.temperature);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/temperature\nm:%.2f\nt:%lu", device_id, measurement.temperature);
   rfm95_send(radiopacket);
   
   delay(50);
   
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/humidity\nm:%.2f\nt:0", device_id, measurement.humidity);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/humidity\nm:%.2f\nt:%lu", device_id, measurement.humidity);
   rfm95_send(radiopacket);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/pressure\nm:%.2f\nt:0", device_id, measurement.pressure);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/pressure\nm:%.2f\nt:%lu", device_id, measurement.pressure);
   rfm95_send(radiopacket);
 
   return true;
@@ -252,14 +374,16 @@ void setup() {
   Serial.print("[info]: device_id ==> ");  Serial.println(device_id);
   
   // start up sensors
-  si7021_connected = si7021_init();
-  bme680_connected = bme680_init();
+  si7021_connected  = si7021_init();
+  bme680_connected  = bme680_init();
+  tmp117_connected  = tmp117_init();
+  pcf8523_connected = pcf8523_rtc_init();
 }
 
 
 void loop() {
   struct sensor_data measurements;
-  bool transmit_ok; 
+  bool   transmit_ok; 
   
   if (si7021_connected) {
     transmit_ok = si7021_measure_transmit();
@@ -270,6 +394,13 @@ void loop() {
 
   if (bme680_connected) {
     transmit_ok = bme680_measure_transmit();
+    if (transmit_ok) {
+      blink_led();
+    }
+  }
+
+  if (tmp117_connected) {
+    transmit_ok = tmp117_measure_transmit();
     if (transmit_ok) {
       blink_led();
     }
