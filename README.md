@@ -55,6 +55,10 @@ Can we do some remote inference of ML models on th Pis?
 
 
 
+Certainly! Here’s an improved version of the documentation with the missing information included efficiently:
+
+---
+
 # Code
 
 The source code for the different implementations can be found as follows:
@@ -63,14 +67,19 @@ The source code for the different implementations can be found as follows:
 
 | Vendor | Board | Frequency | Status | Code Link |
 | :---: | :---: | :--- | :--- | :--- |
-| AdaFruit | Adafruit LoRa Radio Bonnet with OLED - RFM95W | 915mhz (GPIO Hat) | working | This folder contains source code for PiLoRA tranceiver: [./code/transceiver/rpi/](./code/transceiver/rpi) |
+| AdaFruit | Adafruit LoRa Radio Bonnet with OLED - RFM95W | 915MHz (GPIO Hat) | Working | [./code/transceiver/rpi/](./code/transceiver/rpi) |
 
 ## Receivers
 
 | Vendor | Board | Frequency | Status | Code Link |
 | :---: | :---: | :--- | :--- | :--- |
-| Sparkfun | ExpLoRAble | 915mhz | implementation **does not work with PiLoRA** (Adafruit) board | [./code/Sparkfun_ExpLoRAble](./code/Sparkfun_ExpLoRAble) |
-| AdaFruit | ARM Adafruit Feather RP2040 with RFM95 LoRa Radio | 915mhz | in progress | [./code/transmitter/arduino/adafruit_rp2040_lora](./code/transmitter/arduino/adafruit_rp2040_lora)  |
+| AdaFruit | ARM Adafruit Feather RP2040 with RFM95 LoRa Radio | 915MHz | In Progress | [./code/transmitter/arduino/adafruit_rp2040_lora](./code/transmitter/arduino/adafruit_rp2040_lora) |
+
+## Modalities
+
+The RP2040 boards act as transmitters, collecting environmental data and sending it via LoRa. The Raspberry Pi devices act as receivers, relaying this data to the internet through a hotspot connection.
+
+
 
 <!-- # Data 
 
