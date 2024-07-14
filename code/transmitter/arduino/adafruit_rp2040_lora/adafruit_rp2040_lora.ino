@@ -14,6 +14,8 @@
 #include <Adafruit_TMP117.h>
 #include "Adafruit_Si7021.h"
 #include <ArduinoUniqueID.h> // https://github.com/ricaun/ArduinoUniqueID
+#include "Adafruit_LTR390.h"
+#include "Adafruit_PM25AQI.h"
 
 
 #if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_RFM)  // Feather RP2040 w/Radio
@@ -25,28 +27,47 @@
 #define RF95_FREQ 915.0
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-RH_RF95         rf95(RFM95_CS, RFM95_INT);
-RTC_PCF8523     pcf8523_rtc;
-Adafruit_Si7021 si7021              = Adafruit_Si7021();
-Adafruit_BME680 bme680; 
-Adafruit_TMP117 tmp117;
+RH_RF95          rf95(RFM95_CS, RFM95_INT);
+RTC_PCF8523      pcf8523_rtc;
+Adafruit_Si7021  si7021     = Adafruit_Si7021();
+Adafruit_BME680  bme680; 
+Adafruit_TMP117  tmp117;
+Adafruit_LTR390  ltr390     = Adafruit_LTR390();
+Adafruit_PM25AQI pm25aqi    = Adafruit_PM25AQI();
 
 char            device_id[64]       = {0};
 int16_t         packetnum           = 0;  // packet counter, we increment per xmission
-int             led                  = LED_BUILTIN;
+int             led                 = LED_BUILTIN;
 bool            si7021_enableHeater = false;
 bool            si7021_connected    = false;
 bool            bme680_connected    = false;
 bool            tmp117_connected    = false;
 bool            pcf8523_connected   = false;
+bool            ltr390_connected    = false;
+bool            pm25aqi_connected   = false;
 
-// generic struct for storing data; updated based on sensors
+
+//      generic struct for storing data; updated based on sensors
 struct sensor_data {
   float temperature;
   float humidity;
   float pressure;
   long  tm = 0;
+  long  uv = -1;
 };
+
+
+bool pm25aqi_init() { 
+
+  if (!pm25aqi.begin_I2C()) {
+    Serial.println("[warn]: couldn't find Adafruit PMSA003I AQ sensor. Check your connections and verify the address 0x12 is correct.");
+    return false;
+  } 
+ 
+  Serial.println("[info]: Adafruit PM25AQI found ... OK");
+
+  return true;
+}
 
 
 bool pcf8523_rtc_init() { 
@@ -55,6 +76,8 @@ bool pcf8523_rtc_init() {
     Serial.flush();
     return false;
   }
+
+  Serial.println("[info]: Adafruit PCF8523 qwiic sensor found ... OK");
 
   if (! pcf8523_rtc.initialized() || pcf8523_rtc.lostPower()) {
     Serial.println("[warn]: PCF8523 RTC is NOT initialized, let's set the time!");
@@ -104,7 +127,6 @@ bool pcf8523_rtc_init() {
   // rtc.calibrate(PCF8523_TwoHours, 0); // Un-comment to cancel previous calibration
 
   Serial.print("[info]: PCF8523 RTC Offset is "); Serial.println(offset); // Print to control offset
-  pcf8523_connected = true;
   
   return true;
 }
@@ -116,7 +138,7 @@ bool pcf8523_rtc_init() {
 bool bme680_init() {  
   delay(500);
   if (!bme680.begin()) {
-    Serial.println("Could not find a valid BME680 sensor, check wiring!");
+    Serial.println("[warn]: Couldn't find BME680 sensor");
     return false;
   }
 
@@ -125,6 +147,8 @@ bool bme680_init() {
   bme680.setPressureOversampling(BME680_OS_4X);
   bme680.setIIRFilterSize(BME680_FILTER_SIZE_3);
   bme680.setGasHeater(320, 150); // 320*C for 150 ms
+
+  Serial.println("[info]: Adafruit BME680 qwiic sensor found ... OK");
 
   return true;
 }
@@ -140,7 +164,7 @@ bool tmp117_init() {
     return false;
   }
   
-  Serial.println("[info]: Adafruit TMP117 qwiic sensor found");
+  Serial.println("[info]: Adafruit TMP117 qwiic sensor found ... OK");
   return true;
 }
 
@@ -152,10 +176,10 @@ bool si7021_init() {
   delay(500);
   if (!si7021.begin()) {
     Serial.println("[error]: Adafruit si7021 qwiic sensor not found");
-	return false;
+	  return false;
   }
 
-  Serial.print("[info]: Adafruit si7021 qwiic sensor found: model >>");
+  Serial.print("[info]: Adafruit si7021 qwiic sensor found ... OK: model >>");
   switch(si7021.getModel()) {
     case SI_Engineering_Samples:
       Serial.print("SI engineering samples"); break;
@@ -173,6 +197,40 @@ bool si7021_init() {
   Serial.print(si7021.getRevision());
   Serial.print(")");
   Serial.print(" Serial #"); Serial.print(si7021.sernum_a, HEX); Serial.println(si7021.sernum_b, HEX);
+
+  return true;
+}
+
+
+bool ltr390_init() {
+
+  if (!ltr390.begin()) {
+    Serial.println("[error]: Adafruit LTR390 qwiic sensor not found");
+    return false;
+  }
+  
+  Serial.println("[info]: Adafruit LTR390 qwiic sensor found ... OK");
+
+  ltr390.setMode(LTR390_MODE_UVS);
+  ltr390.setGain(LTR390_GAIN_3);
+ 
+//    case LTR390_GAIN_1
+//    case LTR390_GAIN_3
+//    case LTR390_GAIN_6
+//    case LTR390_GAIN_9
+//    case LTR390_GAIN_18
+ 
+  ltr390.setResolution(LTR390_RESOLUTION_16BIT);
+
+//    case LTR390_RESOLUTION_13BIT
+//    case LTR390_RESOLUTION_16BIT
+//    case LTR390_RESOLUTION_17BIT
+//    case LTR390_RESOLUTION_18BIT
+//    case LTR390_RESOLUTION_19BIT
+//    case LTR390_RESOLUTION_20BIT
+
+  ltr390.setThresholds(100, 1000);
+  ltr390.configInterrupt(true, LTR390_MODE_UVS);
 
   return true;
 }
@@ -250,6 +308,112 @@ void rfm95_send(char* packet) {
     rf95.waitPacketSent();
 }
 
+
+/***
+ * 
+ */
+bool pm25aqi_measure_transmit() {
+  struct sensor_data measurement;
+  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
+
+  PM25_AQI_Data data;
+
+  
+  if (!pm25aqi.read(&data)) {
+    Serial.println("[warn] could not read from AQI");
+    delay(500);
+    return false;
+  }
+
+  if (pcf8523_connected) {
+    measurement.tm = pcf8523_rtc.now().unixtime();
+  }
+
+  Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
+  
+  delay(50);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm10standard\nm:%d\nt:%lu", device_id, data.pm10_standard, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm25standard\nm:%d\nt:%lu", device_id, data.pm25_standard, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm100standard\nm:%d\nt:%lu", device_id, data.pm100_standard, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm10env\nm:%d\nt:%lu", device_id, data.pm10_env, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm25env\nm:%d\nt:%lu", device_id, data.pm25_env, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm100env\nm:%d\nt:%lu", device_id, data.pm100_env, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount03um\nm:%d\nt:%lu", device_id, data.particles_05um, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount05um\nm:%d\nt:%lu", device_id, data.particles_05um, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount10um\nm:%d\nt:%lu", device_id, data.particles_10um, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount25um\nm:%d\nt:%lu", device_id, data.particles_25um, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount50um\nm:%d\nt:%lu", device_id, data.particles_50um, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount100um\nm:%d\nt:%lu", device_id, data.particles_100um, measurement.tm);  
+  rfm95_send(radiopacket);
+  delay(50);
+
+  return true;
+}
+
+
+/***
+ * 
+ */
+bool ltr390_measure_transmit() {
+  struct sensor_data measurement;
+  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
+
+  if (pcf8523_connected) {
+    measurement.tm = pcf8523_rtc.now().unixtime();
+  }
+
+  if (!ltr390.newDataAvailable()) {
+    return false;
+  }
+  
+  measurement.uv = ltr390.readUVS();
+
+  Serial.print("[info]: ltr390 ");
+
+  Serial.print("\tuv: ");
+  Serial.println(measurement.uv);
+
+  Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
+  
+  delay(50);
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/ltr390/uv\nm:%.2f\nt:%lu", device_id, measurement.uv, measurement.tm);  
+  rfm95_send(radiopacket);
+  
+  return true;
+}
 
 /***
  * 
@@ -378,6 +542,8 @@ void setup() {
   bme680_connected  = bme680_init();
   tmp117_connected  = tmp117_init();
   pcf8523_connected = pcf8523_rtc_init();
+  ltr390_connected  = ltr390_init();
+  pm25aqi_connected = pm25aqi_init();
 }
 
 
@@ -401,6 +567,20 @@ void loop() {
 
   if (tmp117_connected) {
     transmit_ok = tmp117_measure_transmit();
+    if (transmit_ok) {
+      blink_led();
+    }
+  }
+
+  if (tmp117_connected) {
+    transmit_ok = ltr390_measure_transmit();
+    if (transmit_ok) {
+      blink_led();
+    }
+  }
+
+  if (pm25aqi_connected) {
+    transmit_ok = pm25aqi_measure_transmit();
     if (transmit_ok) {
       blink_led();
     }
