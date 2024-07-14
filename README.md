@@ -22,8 +22,9 @@ This project aims to develop a mesonet of IoT weather monitoring sensors that co
 -   [This project is an extension of the existing OpenIoTwx project
     (https://ncar.github.io/openiotwx/)](https://ncar.github.io/openiotwx/)
 
-![LoRA Firenet](images/LoRA_firenet.png)
 
+
+![LoRA Firenet](images/LoRA_Firenet.jpg)
 
 # Research Questions
 
@@ -42,6 +43,22 @@ Can we do some remote inference of ML models on th Pis?
 | 1d| What are the data collection, transmission and reliability characteristics of  community-private LoRa implementations compared to more advanced commercial or open source alternatives? | [./notebooks/RQ1.ipynb](./notebooks/RQ1.ipynb) |
 | 2* | What edge-ML technologies can be implemented within LoRa environmental data sensing contexts for edge inference on th Pis-based hardware?  | [./notebooks/RQ2.ipynb](./notebooks/RQ2.ipynb) |
 
+
+# Hardware 
+
+| Type | Device/Instrument | Purpose | Setup Information |
+| :-- | :-- | :-- | :-- |
+| SBC | [Raspberry Pi 3 Model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/) | provides main  hardware and OS platform for tranceiver | -- | 
+| Sensor  | [Adafruit Qwiic BME 680](https://www.adafruit.com/product/3660) | Atmospheric measurements | -- |
+| MCU | [Adafruit Feather RP2040 LoRA board](https://learn.adafruit.com/adafruit-feather-rp2040-pico/overview) | transmit data at 915mhz over LoRA | -- |
+| MCU | [Sparkfun ExpLoRaBLE WRL17506 Thing Plus LoRA Board](https://www.sparkfun.com/products/17506) | transmit data at 915mhz over LoRA | -- |
+
+
+
+Certainly! Here’s an improved version of the documentation with the missing information included efficiently:
+
+---
+
 # Code
 
 The source code for the different implementations can be found as follows:
@@ -50,14 +67,19 @@ The source code for the different implementations can be found as follows:
 
 | Vendor | Board | Frequency | Status | Code Link |
 | :---: | :---: | :--- | :--- | :--- |
-| AdaFruit | Adafruit LoRa Radio Bonnet with OLED - RFM95W | 915mhz (GPIO Hat) | working | This folder contains source code for PiLoRA tranceiver: [./code/PiLoRA/](./code/PiLoRA/) |
+| AdaFruit | Adafruit LoRa Radio Bonnet with OLED - RFM95W | 915MHz (GPIO Hat) | Working | [./code/transceiver/rpi/](./code/transceiver/rpi) |
 
 ## Receivers
 
 | Vendor | Board | Frequency | Status | Code Link |
 | :---: | :---: | :--- | :--- | :--- |
-| Sparkfun | ExpLoRAble | 915mhz | implementation **does not work with PiLoRA** (Adafruit) board | [./code/Sparkfun_ExpLoRAble](./code/Sparkfun_ExpLoRAble) |
-| AdaFruit | ARM Adafruit Feather RP2040 with RFM95 LoRa Radio | 915mhz | in progress | -- |
+| AdaFruit | ARM Adafruit Feather RP2040 with RFM95 LoRa Radio | 915MHz | In Progress | [./code/transmitter/arduino/adafruit_rp2040_lora](./code/transmitter/arduino/adafruit_rp2040_lora) |
+
+## Modalities
+
+The RP2040 boards act as transmitters, collecting environmental data and sending it via LoRa. The Raspberry Pi devices act as receivers, relaying this data to the internet through a hotspot connection.
+
+
 
 <!-- # Data 
 
@@ -68,14 +90,7 @@ Data to be compared with the NEON station
 | :---: | ----------|----------|
 | EPA source | This folder contains EPA source data. | [./data/epa/](./data/epa) | -->
 
-# Hardware 
 
-| Type | Device/Instrument | Purpose | Setup Information |
-| :-- | :-- | :-- | :-- |
-| SBC | [Raspberry Pi 3 Model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/) | provides main  hardware and OS platform for tranceiver | -- | 
-| Sensor  | [Adafruit Qwiic BME 680](https://www.adafruit.com/product/3660) | Atmospheric measurements | -- |
-| MCU | [Adafruit Feather RP2040 LoRA board](https://learn.adafruit.com/adafruit-feather-rp2040-pico/overview) | transmit data at 915mhz over LoRA | -- |
-| MCU | [Sparkfun ExpLoRaBLE WRL17506 Thing Plus LoRA Board](https://www.sparkfun.com/products/17506) | transmit data at 915mhz over LoRA | -- |
 
 
 # PiLoRa Setup and Installations
@@ -104,12 +119,12 @@ Follow these steps to set up and install the necessary components for your PiLoR
      source activate
      ```
 
-4. **Enable SPI:**
+4. **Enable SPI and I2C:**
    - Enable SPI by executing the Raspberry Pi configuration tool:
      ```
      sudo raspi-config
      ```
-   - Navigate to `Interface Options` and enable SPI.
+   - Navigate to `Interface Options` and enable SPI and I2C.
 
 5. **Run the Transceiver Script:**
    - Execute the Python script to see your Raspberry Pi with the bonnet act as a transceiver for LoRa packets:
