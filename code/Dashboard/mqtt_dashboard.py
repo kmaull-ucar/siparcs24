@@ -10,7 +10,7 @@ import threading
 from collections import deque
 import dash_bootstrap_components as dbc
 
-# Use deque as a simple cache to store the last 1000 data points
+# cache to store the data points
 data_cache = deque(maxlen=1000000000)
 
 
