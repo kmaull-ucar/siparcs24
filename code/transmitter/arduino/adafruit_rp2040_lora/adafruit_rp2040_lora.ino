@@ -16,7 +16,8 @@
 #include <ArduinoUniqueID.h> // https://github.com/ricaun/ArduinoUniqueID
 #include "Adafruit_LTR390.h"
 #include "Adafruit_PM25AQI.h"
-
+#include <SparkFun_I2C_GPS_Arduino_Library.h> // https://github.com/sparkfun/SparkFun_I2C_GPS_Arduino_Library
+#include <TinyGPSPlus.h>
 
 #if defined(ARDUINO_ADAFRUIT_FEATHER_RP2040_RFM)  // Feather RP2040 w/Radio
   #define RFM95_CS   16
@@ -34,6 +35,8 @@ Adafruit_BME680  bme680;
 Adafruit_TMP117  tmp117;
 Adafruit_LTR390  ltr390     = Adafruit_LTR390();
 Adafruit_PM25AQI pm25aqi    = Adafruit_PM25AQI();
+I2CGPS           sparkfun_GPS; 
+TinyGPSPlus      gps; 
 
 char            device_id[64]       = {0};
 int16_t         packetnum           = 0;  // packet counter, we increment per xmission
@@ -45,7 +48,7 @@ bool            tmp117_connected    = false;
 bool            pcf8523_connected   = false;
 bool            ltr390_connected    = false;
 bool            pm25aqi_connected   = false;
-
+bool            sf_xa1110_connected = false;
 
 //      generic struct for storing data; updated based on sensors
 struct sensor_data {
@@ -55,6 +58,17 @@ struct sensor_data {
   long  tm = 0;
   long  uv = -1;
 };
+
+
+bool sf_xa1110_gps_init() {
+  if (sparkfun_GPS.begin() == false)
+  {
+    Serial.println("[warn] Sparkfun XA1110 GPS Module failed to respond or was not found. Please check wiring.");
+    return false;
+  }
+  Serial.println("[info] Sparkfun XA1110 GPS module found");
+  return true;  
+}
 
 
 bool pm25aqi_init() { 
@@ -506,16 +520,54 @@ bool bme680_measure_transmit() {
 
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/temperature\nm:%.2f\nt:%lu", device_id, measurement.temperature);
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/bme680/temperature\nm: %.2f\nt: %lu", device_id, measurement.temperature, measurement.tm);
   rfm95_send(radiopacket);
   
   delay(50);
   
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/humidity\nm:%.2f\nt:%lu", device_id, measurement.humidity);
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/bme680/humidity\nm: %.2f\nt: %lu", device_id, measurement.humidity, measurement.tm);
   rfm95_send(radiopacket);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/bme680/pressure\nm:%.2f\nt:%lu", device_id, measurement.pressure);
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/bme680/pressure\nm: %.2f\nt: %lu", device_id, measurement.pressure, measurement.tm);
   rfm95_send(radiopacket);
+
+  return true;
+}
+
+bool sf_xa1110_measure_transmit() {
+  struct sensor_data measurement;
+  char               radiopacket[254] = {0}; // max packet is 254 bytes, alloc it all now
+
+  if (pcf8523_connected) {
+    measurement.tm = pcf8523_rtc.now().unixtime();
+  } // TODO: implement fall back to GPS time
+
+  
+  while (sparkfun_GPS.available()) //available() returns the number of new bytes available from the GPS module
+  {
+    gps.encode(sparkfun_GPS.read()); //Feed the GPS parser
+  }
+
+  if (gps.location.isValid())
+  {
+    double lat = gps.location.lat();
+    double lng = gps.location.lng();
+  
+    Serial.print("[info] location: "); 
+    Serial.print(lat, 6); Serial.print(F(", "));
+    Serial.println(lng, 6);
+  
+    Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
+
+    delay(50);
+    sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor: i2c/sfxa1110/gps\nm: %.6f,%.6f\nt: %lu", device_id, lat, lng, measurement.tm);
+    rfm95_send(radiopacket);
+  }
+  else
+  {
+    Serial.println(F("Location not yet valid"));
+    return false;
+  }
 
   return true;
 }
@@ -544,6 +596,7 @@ void setup() {
   pcf8523_connected = pcf8523_rtc_init();
   ltr390_connected  = ltr390_init();
   pm25aqi_connected = pm25aqi_init();
+  sf_xa1110_connected = sf_xa1110_gps_init();
 }
 
 
@@ -581,6 +634,13 @@ void loop() {
 
   if (pm25aqi_connected) {
     transmit_ok = pm25aqi_measure_transmit();
+    if (transmit_ok) {
+      blink_led();
+    }
+  }
+
+  if (sf_xa1110_connected) {
+    transmit_ok = sf_xa1110_measure_transmit();
     if (transmit_ok) {
       blink_led();
     }
