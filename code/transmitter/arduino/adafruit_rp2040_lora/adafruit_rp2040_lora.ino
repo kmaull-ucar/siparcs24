@@ -560,7 +560,7 @@ bool sf_xa1110_measure_transmit() {
     Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
 
     delay(50);
-    sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor: i2c/sfxa1110/gps\nm: %.6f,%.6f\nt: %lu", device_id, lat, lng, measurement.tm);
+    sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/sfxa1110/gps\nm: %.6f,%.6f\nt: %lu", device_id, lat, lng, measurement.tm);
     rfm95_send(radiopacket);
   }
   else
