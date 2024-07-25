@@ -49,7 +49,12 @@ Can we do some remote inference of ML models on th Pis?
 | Type | Device/Instrument | Purpose | Setup Information |
 | :-- | :-- | :-- | :-- |
 | SBC | [Raspberry Pi 3 Model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/) | provides main  hardware and OS platform for tranceiver | -- | 
+| SBC | [Raspberry Pi Zero 2w ](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/) | provides smaller form factor hardware and DietPi OS platform for gateway tranceiver | -- | 
 | Sensor  | [Adafruit Qwiic BME 680](https://www.adafruit.com/product/3660) | Atmospheric measurements | -- |
+| Sensor  | [Air Quality Adafruit PMSA003I](https://www.adafruit.com/product/4632) | Atmospheric measurements | -- |
+| Sensor  | [UV Sensor adafruit ltr390 ](https://www.adafruit.com/product/4831) | Atmospheric measurements | -- |
+| Sensor  | [GPS Sparkfun xa1110 ](https://www.sparkfun.com/products/14414) | Atmospheric measurements | -- |
+| Sensor  | [Realtime clock Adafruit PCFT8523 ](https://www.adafruit.com/product/3295) | Atmospheric measurements | -- |
 | MCU | [Adafruit Feather RP2040 LoRA board](https://learn.adafruit.com/adafruit-feather-rp2040-pico/overview) | transmit data at 915mhz over LoRA | -- |
 | MCU | [Sparkfun ExpLoRaBLE WRL17506 Thing Plus LoRA Board](https://www.sparkfun.com/products/17506) | transmit data at 915mhz over LoRA | -- |
 
