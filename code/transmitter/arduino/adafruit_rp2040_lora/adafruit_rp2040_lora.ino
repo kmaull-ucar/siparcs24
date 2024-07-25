@@ -346,51 +346,51 @@ bool pm25aqi_measure_transmit() {
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
   
   delay(50);
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm10standard\nm:%d\nt:%lu", device_id, data.pm10_standard, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/pm10standard\nm: %d\nt: %lu", device_id, data.pm10_standard, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm25standard\nm:%d\nt:%lu", device_id, data.pm25_standard, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/pm25standard\nm: %d\nt: %lu", device_id, data.pm25_standard, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm100standard\nm:%d\nt:%lu", device_id, data.pm100_standard, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/pm100standard\nm: %d\nt: %lu", device_id, data.pm100_standard, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm10env\nm:%d\nt:%lu", device_id, data.pm10_env, measurement.tm);  
+  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor: i2c/pmsa003i/pm10env\nm: %d\nt: %lu", device_id, data.pm10_env, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm25env\nm:%d\nt:%lu", device_id, data.pm25_env, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/pm25env\nm: %d\nt: %lu", device_id, data.pm25_env, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/pm100env\nm:%d\nt:%lu", device_id, data.pm100_env, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/pm100env\nm: %d\nt: %lu", device_id, data.pm100_env, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount03um\nm:%d\nt:%lu", device_id, data.particles_05um, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/partcount03um\nm: %d\nt: %lu", device_id, data.particles_05um, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount05um\nm:%d\nt:%lu", device_id, data.particles_05um, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/partcount05um\nm: %d\nt: %lu", device_id, data.particles_05um, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount10um\nm:%d\nt:%lu", device_id, data.particles_10um, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/partcount10um\nm: %d\nt: %lu", device_id, data.particles_10um, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount25um\nm:%d\nt:%lu", device_id, data.particles_25um, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/partcount25um\nm: %d\nt: %lu", device_id, data.particles_25um, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount50um\nm:%d\nt:%lu", device_id, data.particles_50um, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/partcount50um\nm: %d\nt: %lu", device_id, data.particles_50um, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/pmsa003i/partcount100um\nm:%d\nt:%lu", device_id, data.particles_100um, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/pmsa003i/partcount100um\nm: %d\nt: %lu", device_id, data.particles_100um, measurement.tm);  
   rfm95_send(radiopacket);
   delay(50);
 
@@ -423,7 +423,7 @@ bool ltr390_measure_transmit() {
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
   
   delay(50);
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/ltr390/uv\nm:%.2f\nt:%lu", device_id, measurement.uv, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/ltr390/uv\nm: %.2f\nt: %lu", device_id, measurement.uv, measurement.tm);  
   rfm95_send(radiopacket);
   
   return true;
@@ -452,7 +452,7 @@ bool tmp117_measure_transmit() {
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
 
   delay(50);
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/tmp117/temperature\nm:%.2f\nt:%lu", device_id, measurement.temperature, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/tmp117/temperature\nm: %.2f\nt: %lu", device_id, measurement.temperature, measurement.tm);  
   rfm95_send(radiopacket);
   
   return true;
@@ -478,12 +478,12 @@ bool si7021_measure_transmit() {
 
   Serial.println("[info]: rfm95 transmitting packet ..."); // Send a message to rf95_server
 
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/temperature\nm:%.2f\nt:%lu", device_id, measurement.temperature, measurement.tm);  
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/si7021/temperature\nm: %.2f\nt: %lu", device_id, measurement.temperature, measurement.tm);  
   rfm95_send(radiopacket);
   
   delay(50);
   
-  sprintf(radiopacket, "device:adafruit/rp2040/%s\nsensor:i2c/si7021/humidity\nm:%.2f\nt:%lu", device_id, measurement.humidity, measurement.tm);
+  sprintf(radiopacket, "device: adafruit/rp2040/%s\nsensor: i2c/si7021/humidity\nm: %.2f\nt: %lu", device_id, measurement.humidity, measurement.tm);
   rfm95_send(radiopacket);
 
   return true;
