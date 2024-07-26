@@ -3,7 +3,7 @@
 
 ## Project Description
 
-This project aims to develop a mesonet of IoT weather monitoring sensors that collect various environmental data, including temperature, humidity, altitude, air quality, UV levels, and rain data. The collected data will be transmitted via a community-maintained private LoRa (Long Range) network to intermediary custom Raspberry Pi gateways. These Raspberry Pi devices forward the aggregated data over the internet to a network server, which distributes the information to application servers for further processing and analysis.
+This project  develops a mesonet of IoT weather monitoring sensors that collect various environmental data, including temperature, humidity, altitude, air quality, UV levels, and rain data. The collected data will be transmitted via a community-maintained private LoRa (Long Range) network to intermediary custom Raspberry Pi gateways. These Raspberry Pi devices forward the aggregated data over the internet to a network server, which distributes the information to application servers for further processing and analysis.
 
 #### Key Components:
 1. **Sensor Devices:** These devices measure and collect weather data. Each sensor node is equipped with LoRa communication capabilities to transmit data wirelessly.
