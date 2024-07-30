@@ -60,8 +60,6 @@ Can we do some remote inference of ML models on th Pis?
 
 
 
-Certainly! Here’s an improved version of the documentation with the missing information included efficiently:
-
 ---
 
 # Code
