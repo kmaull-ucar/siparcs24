@@ -124,11 +124,15 @@ Follow these steps to set up and install the necessary components for your PiLoR
 
 
 4. **Enable SPI and I2C:**
-   - Enable SPI by executing the Raspberry Pi configuration tool:
+   - Enable SPI by executing the Raspberry Pi or Diet Pi configuration tool:
      ```
      sudo raspi-config
      ```
-   - Navigate to `Interface Options` and enable SPI and I2C.
+
+     ```
+     sudo dietpi-config
+     ```
+   - Navigate to `Interface Options` and under `Advanced` Option enable SPI and I2C.
 
 5. **Run the Transceiver Script:**
    - Execute the Python script to see your Raspberry Pi with the bonnet act as a transceiver for LoRa packets:
