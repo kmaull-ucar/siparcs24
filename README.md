@@ -105,8 +105,14 @@ Follow these steps to set up and install the necessary components for your PiLoR
      ```
      python -m venv adafruit
      ```
+2. **Activate the Virtual Environment:**
+   - Navigate to your virtual environment's bin directory and activate it:
+     ```
+     cd adafruit/bin
+     source activate
+     ```
 
-2. **Install Required Libraries:**
+3. **Install Required Libraries:**
    - Install the necessary libraries using the following commands:
      ```
      pip3 install adafruit-circuitpython-ssd1306
@@ -115,12 +121,7 @@ Follow these steps to set up and install the necessary components for your PiLoR
      pip3 install paho-mqtt
      ```
 
-3. **Activate the Virtual Environment:**
-   - Navigate to your virtual environment's bin directory and activate it:
-     ```
-     cd adafruit/bin
-     source activate
-     ```
+
 
 4. **Enable SPI and I2C:**
    - Enable SPI by executing the Raspberry Pi configuration tool:
