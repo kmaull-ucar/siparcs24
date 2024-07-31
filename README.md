@@ -134,9 +134,16 @@ Follow these steps to set up and install the necessary components for your PiLoR
      ```
    - Navigate to `Interface Options` and under `Advanced` Option enable SPI and I2C.
   
-
-
-5. **Run the Transceiver Script:**
+5. **Set User permissions for I2C, GPIO, and SPI**
+   - Type the following commands;
+     ```
+     sudo usermod dietpi -aG i2c
+     sudo usermod dietpi -aG gpio
+     sudo usermod dietpi -aG spi
+     ```
+  - Log out of the account (CTRL^D or exit) and log back in so permissions are reset.
+    
+7. **Run the Transceiver Script:**
    - First clone this github repo:
      ```git clone https://github.com/kmaull-ucar/siparcs24.git```
      
